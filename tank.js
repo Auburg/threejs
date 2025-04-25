@@ -178,6 +178,10 @@ function main() {
 	targetElevation.add( targetBob );
 	targetBob.add( targetMesh );
 
+	const turretPosObj = targetMesh.clone();
+
+	scene.add( turretPosObj );	
+
 	const targetCamera = makeCamera();
 	const targetCameraPivot = new THREE.Object3D();
 	targetCamera.position.y = 1;
@@ -256,6 +260,8 @@ function main() {
 	
 		moveTank();
 
+		rotateTurret();
+
 		// face turret at target
 		//targetMesh.getWorldPosition( targetPosition );
 		//turretPivot.lookAt( targetPosition );
@@ -286,7 +292,10 @@ function main() {
 			wheelMeshes.forEach( ( obj ) => {
 				obj.rotation.x = time * 3;	
 			} );
+			
+		}
 
+		function rotateTurret() {
 			let xAngle = THREE.MathUtils.clamp(xRot * 0.5,0.0,1.0);
 			let yAngle = THREE.MathUtils.clamp(yRot * 0.5,-1.0,1.0);
 			
@@ -315,18 +324,23 @@ function main() {
 		}
 
 		function debugOutput() {
-			console.log("Tank Position: " + tank.position.x.toFixed(3) + ", " + tank.position.y.toFixed(3) + ", " + tank.position.z.toFixed(3));
-			//console.log("Tank Rotation: " + tank.rotation.x + ", " + tank.rotation.y + ", " + tank.rotation.z);
-			console.log("Turret Position: " + turretPivot.position.x.toFixed(3) + ", " + turretPivot.position.y.toFixed(3) + ", " + turretPivot.position.z.toFixed(3));
-			//console.log("Turret Rotation: " + turretPivot.rotation.x.toFixed(3) + ", " + turretPivot.rotation.y.toFixed(3) + ", " + turretPivot.rotation.z).toFixed(3);
+
+			const turretBoundingBox = new THREE.Box3().setFromObject(turretMesh);
+
+			const box = new THREE.BoxHelper( turretMesh, 0xffff00 );
+			box.position.copy( turretBoundingBox.getCenter(new THREE.Vector3()) );	
 			
+			console.log("Tank Position: " + box.position.x.toFixed(3) + ", " + box.position.y.toFixed(3) + ", " + box.position.z.toFixed(3));	
+		
+			turretPosObj.position.set( box.position.x , box.position.y, box.position.z );
+
 			const xElem = document.querySelector('#x');		
 			const yElem = document.querySelector('#y');		
 			const zElem = document.querySelector('#z');					
 			
-			xElem.textContent = turretCamera.position.x.toFixed(3);
-			yElem.textContent = turretCamera.position.y.toFixed(3);
-			zElem.textContent = turretCamera.position.z.toFixed(3);
+			xElem.textContent = turretPosObj.position.x.toFixed(3);
+			yElem.textContent = turretPosObj.position.y.toFixed(3);
+			zElem.textContent = turretPosObj.position.z.toFixed(3);
 		}
 
 		function moveTarget() {
