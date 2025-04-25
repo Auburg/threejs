@@ -183,9 +183,11 @@ function main() {
 	targetElevation.add( targetBob );
 	targetBob.add( targetMesh );
 
-	const missileObj = targetMesh.clone();
-
-	scene.add( missileObj );	
+	const missileGeometry = new THREE.SphereGeometry( .25, 9, 6 );
+	const missileMaterial = new THREE.MeshPhongMaterial( { color: 0xFF0000 } );	
+	const missileMesh = new THREE.Mesh( missileGeometry, missileMaterial );			
+	missileMesh.castShadow = true;
+	scene.add( missileMesh );	
 
 	const targetCamera = makeCamera();
 	const targetCameraPivot = new THREE.Object3D();
@@ -304,7 +306,8 @@ function main() {
 			let yAngle = THREE.MathUtils.clamp(yRot * 0.5,-1.0,1.0);
 			
 			turretPivot.rotation.x = -xAngle
-			turretPivot.rotation.y = -yAngle
+			turretPivot.rotation.y = -yAngle			
+		
 		}
 
 
@@ -314,16 +317,16 @@ function main() {
 				const turretEnd = new THREE.Vector3(0, 0, turretLength * 0.5); 		
 				const turret = new THREE.Vector3(0, 0, 0); 		
 				turretMesh.localToWorld(turretEnd); // Convert the local offset to world coordinates
-				turretMesh.localToWorld(turret); // Convert the local offset to world coordinates
-
-				missileObj.position.set( turretEnd.x  , turretEnd.y , turretEnd.z );	
+				turretMesh.localToWorld(turret); // Convert the local offset to world coordinates				
+				
+				missileMesh.position.set( turretEnd.x  , turretEnd.y , turretEnd.z );	
 
 				missileVector.subVectors( turretEnd, turret ).normalize();
 			}
 			else {
 
-				missileObj.getWorldPosition( targetPosition );
-				missileObj.position.add( missileVector.clone().multiplyScalar( missileVeclocity ) );
+				missileMesh.getWorldPosition( targetPosition );
+				missileMesh.position.add( missileVector.clone().multiplyScalar( missileVeclocity ) );
 			}
 		}
 
