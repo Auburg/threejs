@@ -147,6 +147,7 @@ function main() {
 	bodyMesh.add( domeMesh );
 	domeMesh.position.y = .5;
 
+	var turretDir = new THREE.Vector3();
 	const turretWidth = .1;
 	const turretHeight = .1;
 	const turretLength = carLength * .75 * .2;
@@ -308,9 +309,13 @@ function main() {
 		function updateTurrentEndPosObj() {			
 
 			const turretEnd = new THREE.Vector3(0, 0, turretLength * 0.5); 		
+			const turret = new THREE.Vector3(0, 0, 0); 		
 			turretMesh.localToWorld(turretEnd); // Convert the local offset to world coordinates
+			turretMesh.localToWorld(turret); // Convert the local offset to world coordinates
 
-			turretPosObj.position.set( turretEnd.x  , turretEnd.y , turretEnd.z );			
+			turretPosObj.position.set( turretEnd.x  , turretEnd.y , turretEnd.z );	
+
+			turretDir.subVectors( turretEnd, turret ).normalize();
 			
 		}
 
@@ -341,9 +346,9 @@ function main() {
 			const yElem = document.querySelector('#y');		
 			const zElem = document.querySelector('#z');					
 			
-			//xElem.textContent = turretPosObj.position.x.toFixed(3);
-			//yElem.textContent = turretPosObj.position.y.toFixed(3);
-			//zElem.textContent = turretPosObj.position.z.toFixed(3);
+			xElem.textContent = turretDir.x.toFixed(3);
+			yElem.textContent = turretDir.y.toFixed(3);
+			zElem.textContent = turretDir.z.toFixed(3);
 		}
 
 		function moveTarget() {
