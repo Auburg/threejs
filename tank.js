@@ -25,6 +25,9 @@ function main() {
 		} else if (keyCode == 67) {
 			xRot = yRot = 0.0; // c 
 		}
+		else if (keyCode == 32) {
+			// space
+		}
 	};
 
 	const renderer = new THREE.WebGLRenderer( { antialias: true, canvas: canvas } );
@@ -67,11 +70,9 @@ function main() {
 	}
 
 	{
-
 		const light = new THREE.DirectionalLight( 0xffffff, 3 );
 		light.position.set( 1, 2, 4 );
 		scene.add( light );
-
 	}
 
 	const groundGeometry = new THREE.PlaneGeometry( 50, 50 );
@@ -270,7 +271,7 @@ function main() {
 		//turretCamera.lookAt( targetPosition );		
 
 		
-		//drawRay();
+		updateTurrentEndPosObj();
 
 		debugOutput();
 		
@@ -304,43 +305,45 @@ function main() {
 		}
 
 
+		function updateTurrentEndPosObj() {			
+
+			const turretEnd = new THREE.Vector3(0, 0, turretLength * 0.5); 		
+			turretMesh.localToWorld(turretEnd); // Convert the local offset to world coordinates
+
+			turretPosObj.position.set( turretEnd.x  , turretEnd.y , turretEnd.z );			
+			
+		}
+
 		function drawRay() {
-			const material = new THREE.LineBasicMaterial({
+
+			/*const material = new THREE.LineBasicMaterial({
 				color: 0x0000ff
 			});
-			
+
 			const points = [];
 			points.push( turretPivot.position);
 			points.push( new THREE.Vector3( 
-				turretPivot.position.x, 
-				turretPivot.position.y + 200, 
-				turretPivot.position.z  ) );
+				turretEnd.position.x, 
+				turretEnd.position.y , 
+				turretEnd.position.z  ) );
 			
 			
 			const geometry = new THREE.BufferGeometry().setFromPoints( points );
 			
 			const line = new THREE.Line( geometry, material );
-			scene.add( line );
+			scene.add( line );*/
+
 		}
 
 		function debugOutput() {
-
-			const turretBoundingBox = new THREE.Box3().setFromObject(turretMesh);
-
-			const box = new THREE.BoxHelper( turretMesh, 0xffff00 );
-			box.position.copy( turretBoundingBox.getCenter(new THREE.Vector3()) );	
-			
-			console.log("Tank Position: " + box.position.x.toFixed(3) + ", " + box.position.y.toFixed(3) + ", " + box.position.z.toFixed(3));	
-		
-			turretPosObj.position.set( box.position.x , box.position.y, box.position.z );
 
 			const xElem = document.querySelector('#x');		
 			const yElem = document.querySelector('#y');		
 			const zElem = document.querySelector('#z');					
 			
-			xElem.textContent = turretPosObj.position.x.toFixed(3);
-			yElem.textContent = turretPosObj.position.y.toFixed(3);
-			zElem.textContent = turretPosObj.position.z.toFixed(3);
+			//xElem.textContent = turretPosObj.position.x.toFixed(3);
+			//yElem.textContent = turretPosObj.position.y.toFixed(3);
+			//zElem.textContent = turretPosObj.position.z.toFixed(3);
 		}
 
 		function moveTarget() {
