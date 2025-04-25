@@ -9,6 +9,7 @@ function main() {
 	let yRot = 0.0;
 	var velocity = 0.1;
 	let isFired = false;
+	let isHit = false;
 	const missileVeclocity = 0.5;
 
 	document.addEventListener("keydown", onDocumentKeyDown, false);
@@ -27,6 +28,7 @@ function main() {
 		} else if (keyCode == 67) {
 			xRot = yRot = 0.0; // c 
 			isFired = false;
+			isHit = false;
 		}
 		else if (keyCode == 32) {
 			isFired = true; // space
@@ -265,19 +267,22 @@ function main() {
 
 		moveTarget();
 	
-		moveTank();
+		//moveTank();
 
 		rotateTurret();
 
 		// face turret at target
 		//targetMesh.getWorldPosition( targetPosition );
 		//turretPivot.lookAt( targetPosition );
+		
 
 		// make the turretCamera look at target
 		//turretCamera.lookAt( targetPosition );		
 
 		
 		updateMissilePos();		
+
+		checkCollsion( missileMesh, targetMesh );
 
 		debugOutput();
 		
@@ -299,6 +304,17 @@ function main() {
 				obj.rotation.x = time * 3;	
 			} );
 			
+		}
+
+		function checkCollsion( missile, target ) {
+			const missileBox = new THREE.Box3().setFromObject( missile );
+			const targetBox = new THREE.Box3().setFromObject( target );
+
+			if (missileBox.intersectsBox(targetBox)) {
+				console.log("Hit!");
+				scene.remove( target );
+				scene.remove( missile );
+			}			
 		}
 
 		function rotateTurret() {
@@ -361,7 +377,15 @@ function main() {
 			yElem.textContent = missileVector.y.toFixed(3);
 			zElem.textContent = missileVector.z.toFixed(3);
 
-			infoElem.textContent = isFired ? "Fired" : "Not Fired";
+			if (isFired && isHit) {
+				infoElem.textContent = "Hit!";
+			}
+			else if (isFired && !isHit) {
+				infoElem.textContent = "Missed!";
+			}
+			else if (!isFired) {
+				infoElem.textContent = "Ready to fire!";
+			}
 		}
 
 		function moveTarget() {
