@@ -8,6 +8,8 @@ function main() {
 	let xRot = 0.0;
 	let yRot = 0.0;
 	var velocity = 0.1;
+	let isFired = false;
+	const missileVeclocity = 0.5;
 
 	document.addEventListener("keydown", onDocumentKeyDown, false);
 
@@ -24,9 +26,10 @@ function main() {
 			yRot -= velocity; //right
 		} else if (keyCode == 67) {
 			xRot = yRot = 0.0; // c 
+			isFired = false;
 		}
 		else if (keyCode == 32) {
-			// space
+			isFired = true; // space
 		}
 	};
 
@@ -147,7 +150,7 @@ function main() {
 	bodyMesh.add( domeMesh );
 	domeMesh.position.y = .5;
 
-	var turretDir = new THREE.Vector3();
+	var missileVector = new THREE.Vector3();
 	const turretWidth = .1;
 	const turretHeight = .1;
 	const turretLength = carLength * .75 * .2;
@@ -180,9 +183,9 @@ function main() {
 	targetElevation.add( targetBob );
 	targetBob.add( targetMesh );
 
-	const turretPosObj = targetMesh.clone();
+	const missileObj = targetMesh.clone();
 
-	scene.add( turretPosObj );	
+	scene.add( missileObj );	
 
 	const targetCamera = makeCamera();
 	const targetCameraPivot = new THREE.Object3D();
@@ -272,17 +275,16 @@ function main() {
 		//turretCamera.lookAt( targetPosition );		
 
 		
-		updateTurrentEndPosObj();
+		updateMissilePos();		
 
 		debugOutput();
 		
 		
-		const camera = cameras[ time * .25 % cameras.length | 0 ];
-		infoElem.textContent = camera.desc;
+		const camera = cameras[ time * .25 % cameras.length | 0 ];		
 
 		renderer.render( scene, camera.cam );
 
-		requestAnimationFrame( render );
+		requestAnimationFrame( render );		
 
 		function moveTank() {
 			const tankTime = time * .05;
@@ -306,17 +308,23 @@ function main() {
 		}
 
 
-		function updateTurrentEndPosObj() {			
-
-			const turretEnd = new THREE.Vector3(0, 0, turretLength * 0.5); 		
-			const turret = new THREE.Vector3(0, 0, 0); 		
-			turretMesh.localToWorld(turretEnd); // Convert the local offset to world coordinates
-			turretMesh.localToWorld(turret); // Convert the local offset to world coordinates
-
-			turretPosObj.position.set( turretEnd.x  , turretEnd.y , turretEnd.z );	
-
-			turretDir.subVectors( turretEnd, turret ).normalize();
+		function updateMissilePos() {		
 			
+			if(!isFired) {
+				const turretEnd = new THREE.Vector3(0, 0, turretLength * 0.5); 		
+				const turret = new THREE.Vector3(0, 0, 0); 		
+				turretMesh.localToWorld(turretEnd); // Convert the local offset to world coordinates
+				turretMesh.localToWorld(turret); // Convert the local offset to world coordinates
+
+				missileObj.position.set( turretEnd.x  , turretEnd.y , turretEnd.z );	
+
+				missileVector.subVectors( turretEnd, turret ).normalize();
+			}
+			else {
+
+				missileObj.getWorldPosition( targetPosition );
+				missileObj.position.add( missileVector.clone().multiplyScalar( missileVeclocity ) );
+			}
 		}
 
 		function drawRay() {
@@ -346,9 +354,11 @@ function main() {
 			const yElem = document.querySelector('#y');		
 			const zElem = document.querySelector('#z');					
 			
-			xElem.textContent = turretDir.x.toFixed(3);
-			yElem.textContent = turretDir.y.toFixed(3);
-			zElem.textContent = turretDir.z.toFixed(3);
+			xElem.textContent = missileVector.x.toFixed(3);
+			yElem.textContent = missileVector.y.toFixed(3);
+			zElem.textContent = missileVector.z.toFixed(3);
+
+			infoElem.textContent = isFired ? "Fired" : "Not Fired";
 		}
 
 		function moveTarget() {
