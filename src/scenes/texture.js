@@ -20,29 +20,20 @@ controls.dampingFactor = 0.05;
 controls.target.set(0, 0, 0);
 controls.update();
 
-// Create a flat white square
-const squareShape = new THREE.Shape();
-squareShape.moveTo(-0.5, -0.5);
-squareShape.lineTo(0.5, -0.5);
-squareShape.lineTo(0.5, 0.5);
-squareShape.lineTo(-0.5, 0.5);
-squareShape.lineTo(-0.5, -0.5);
+const geometry = new THREE.PlaneGeometry( 2, 1 );
 
-const geometry = new THREE.ShapeGeometry(squareShape);
+const loader = new THREE.TextureLoader();
+const texture = loader.load( './images/wall.jpg' );
+texture.colorSpace = THREE.SRGBColorSpace;
 
-// Create shader material
-const material = new THREE.ShaderMaterial({
-  vertexShader: vertexShader,
-  fragmentShader: fragmentShader,
-  side: THREE.DoubleSide,
-  uniforms: {
-    time: { value: 0.0 }
-  }
+
+const material = new THREE.MeshBasicMaterial({
+  map: texture,
 });
-
-const squareMesh = new THREE.Mesh(geometry, material);
-squareMesh.position.set(0, 0, 0);
-scene.add(squareMesh);
+  
+const plane = new THREE.Mesh( geometry, material );
+scene.add( plane );
+plane.position.set(0, 0, 0);
 
 // Add lighting
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
@@ -68,10 +59,8 @@ function animate() {
     const canvas = renderer.domElement;
     camera.aspect = canvas.clientWidth / canvas.clientHeight;
     camera.updateProjectionMatrix();
-  }
-  
-  // Update time uniform for shader animations
-  material.uniforms.time.value = (Math.sin(Date.now() * 0.001) + 1.0) * 0.5;
+  } 
+
   
   controls.update(); // Update controls for damping
   renderer.render(scene, camera);
